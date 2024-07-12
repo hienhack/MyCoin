@@ -1,12 +1,6 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
 
-type Props = {
-  refVal: React.RefObject<HTMLAnchorElement>;
-  downloadable: boolean;
-};
-
-const BtnDownloadKeys: React.FC<Props> = ({ refVal, downloadable }) => {
+function BtnDownloadKeys({ refVal, downloadable }) {
   return (
     <div className="w-full sm:w-1/2">
       <a
@@ -14,7 +8,7 @@ const BtnDownloadKeys: React.FC<Props> = ({ refVal, downloadable }) => {
         ref={refVal}
         className={`${!downloadable ? `hidden` : `visible`}`}
       >
-        <button className="w-full flex justify-center items-center px-4 py-4 rounded-md border-2 border-emerald-600 text-white hover:text-emerald-600 bg-emerald-600 hover:bg-white mt-5 sm:mt-10 cursor-pointer transition-colors ease-in-out delay-150">
+        <button className="w-full flex justify-center items-center px-4 py-4 rounded-md border-2 text-white hover:brightness-110 bg-emerald-500 mt-5 sm:mt-10 cursor-pointer">
           <div className="text-xl mr-2">
             <svg width="1em" height="1em" viewBox="0 0 32 32">
               <path
@@ -56,6 +50,6 @@ const BtnDownloadKeys: React.FC<Props> = ({ refVal, downloadable }) => {
       </button>
     </div>
   );
-};
+}
 
 export default BtnDownloadKeys;

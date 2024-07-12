@@ -1,14 +1,13 @@
 import React, { useContext, useState } from "react";
-import { Dialog } from "@headlessui/react";
-import WalletContext from "context/WalletContext";
-import api from "api";
+import WalletContext from "../../context/WalletContext";
+import api from "../../api";
 import { Navigate } from "react-router-dom";
 
 function AccessWithFile() {
-  const [readFileSuccess, setReadFileSuccess] = useState<boolean | null>(null);
+  const [readFileSuccess, setReadFileSuccess] = useState(false);
   const walletCtx = useContext(WalletContext);
 
-  function readKeysFromFile(event: React.ChangeEvent<HTMLInputElement>) {
+  function readKeysFromFile(event) {
     event.preventDefault();
     const reader = new FileReader();
 
@@ -27,7 +26,7 @@ function AccessWithFile() {
             privateKey.length > 0 &&
             walletCtx.setWallet
           ) {
-            const response = await api.post("/access-wallet", {
+            const response = await api.post("/wallet/access", {
               publicKey: publicKey,
               privateKey: privateKey,
             });
@@ -51,7 +50,7 @@ function AccessWithFile() {
     }
   }
 
-  if (walletCtx.wallet.privateKey.length > 0)
+  if (walletCtx.wallet?.privateKey?.length > 0)
     return <Navigate to={"/wallet"} />;
 
   return (
@@ -70,28 +69,11 @@ function AccessWithFile() {
           <span className="sr-only">Choose keys file</span>
           <input
             type="file"
-            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-emerald-400 hover:file:bg-violet-100"
+            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-indigo-900 hover:file:bg-violet-100"
             onChange={readKeysFromFile}
           />
         </label>
       </form>
-
-      <div className="flex justify-center mt-10">
-        <div className="w-1/3 py-2 border border-emerald-700 hover:bg-emerald-700 rounded-lg text-emerald-700 hover:text-white text-center text-base cursor-pointer transition-colors ease-in-out delay-150">
-          Access Wallet
-        </div>
-      </div>
-
-      <Dialog open={!readFileSuccess} onClose={() => setReadFileSuccess(null)}>
-        <Dialog.Panel>
-          <Dialog.Title>Read file failed! </Dialog.Title>
-
-          <p>
-            Read keys from file failed! Please check your keys file and try
-            again
-          </p>
-        </Dialog.Panel>
-      </Dialog>
     </div>
   );
 }

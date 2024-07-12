@@ -1,13 +1,9 @@
 import React from "react";
 
-type Props = {
-  generateWallet: () => Promise<void>;
-};
-
-const BtnGenerateWallet: React.FC<Props> = ({ generateWallet }) => {
+function BtnGenerateWallet({ generateWallet }) {
   return (
     <div
-      className="flex w-full sm:w-1/2 justify-center items-center px-4 py-4 rounded-md border-2 border-emerald-600 text-white hover:text-emerald-600 bg-emerald-600 hover:bg-white mt-10 cursor-pointer transition-colors ease-in-out delay-150"
+      className="flex w-full sm:w-1/2 justify-center items-center px-4 py-4 rounded-md border-2 text-white bg-emerald-500 mt-10 cursor-pointer"
       onClick={generateWallet}
     >
       <div className="text-xl mr-2">
@@ -22,6 +18,6 @@ const BtnGenerateWallet: React.FC<Props> = ({ generateWallet }) => {
       <div className="ml-3 text-3xl"></div>
     </div>
   );
-};
+}
 
 export default BtnGenerateWallet;

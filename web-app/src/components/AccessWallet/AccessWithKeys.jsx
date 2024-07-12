@@ -1,45 +1,41 @@
-import api from "api";
-import WalletContext from "context/WalletContext";
+import axios from "axios";
+import api from "../../api";
+import WalletContext from "../../context/WalletContext";
 import { useContext, useRef } from "react";
 import { Navigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 function AccessWithKeys() {
-  const pbKeyRef = useRef<HTMLInputElement>(null);
-  const pvKeyRef = useRef<HTMLInputElement>(null);
+  const pbKeyRef = useRef(null);
+  const pvKeyRef = useRef(null);
   const walletCtx = useContext(WalletContext);
 
-  async function accessWallet() {
+  function accessWallet() {
     if (pbKeyRef.current?.value && pvKeyRef.current?.value) {
       const pbKey = pbKeyRef.current.value;
       const pvKey = pvKeyRef.current.value;
 
-      const response = await api.post("/access-wallet", {
-        publicKey: pbKey,
-        privateKey: pvKey,
-      });
-
-      if (response.status === 200 && walletCtx.setWallet) {
-        walletCtx.setWallet({
-          publicKey: response.data.publicKey,
-          privateKey: response.data.privateKey,
-          balance: response.data.balance,
+      api
+        .post("/wallet/access", {
+          publicKey: pbKey,
+          privateKey: pvKey,
+        })
+        .then((response) => {
+          walletCtx.setWallet({
+            publicKey: response.data.publicKey,
+            privateKey: response.data.privateKey,
+            balance: response.data.balance,
+          });
+        })
+        .catch((error) => {
+          toast.error("Invalid keys");
         });
-      }
     } else {
-      toast.error("Please fill in all fields", {
-        position: "top-center",
-        autoClose: 1000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      toast.error("Please fill in all fields");
     }
   }
 
-  if (walletCtx.wallet.privateKey.length > 0)
+  if (walletCtx.wallet?.privateKey?.length > 0)
     return <Navigate to={"/wallet"} />;
 
   return (
@@ -58,7 +54,8 @@ function AccessWithKeys() {
               type="text"
               ref={pbKeyRef}
               placeholder="Enter your public key"
-              className="w-full border-2 rounded-md px-3 py-3 focus:outline-none focus:border-emerald-400"
+              className="w-full border rounded-md px-3 py-3 focus:outline-none focus:border-indigo-800"
+              required
             />
           </div>
         </div>
@@ -75,7 +72,7 @@ function AccessWithKeys() {
               type="text"
               ref={pvKeyRef}
               placeholder="Enter your private key"
-              className="w-full border-2 rounded-md px-3 py-3 focus:outline-none focus:border-emerald-400"
+              className="w-full border rounded-md px-3 py-3 focus:outline-none focus:border-indigo-800"
             />
           </div>
         </div>
@@ -83,13 +80,12 @@ function AccessWithKeys() {
 
       <div className="flex justify-center mt-10">
         <div
-          className="w-1/3 py-2 border border-emerald-700 hover:bg-emerald-700 rounded-lg text-emerald-700 hover:text-white text-center text-base md:text-lg cursor-pointer transition-colors ease-in-out delay-150"
+          className="w-1/3 py-2 border border-indigo-700 hover:bg-indigo-800 rounded-lg text-indigo-700 hover:text-white text-center text-base cursor-pointer transition-colors ease-in-out delay-150"
           onClick={accessWallet}
         >
           Access Wallet
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }

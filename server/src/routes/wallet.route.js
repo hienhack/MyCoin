@@ -1,5 +1,6 @@
 const express = require("express");
 const EC = require("elliptic");
+const blockchanin = require("../../blockchain/Blockchain");
 
 const router = express.Router();
 const ec = new EC.ec("secp256k1");
@@ -15,15 +16,23 @@ router.post('/create', (req, res) => {
 router.post('/access', async (req, res) => {
     const { privateKey, publicKey } = req.body;
     if (!privateKey || !publicKey) {
-        res.status(400).json({ error: "Public and private keys are required" });
+        res.status(400).json({ message: "Public and private keys are required" });
     }
 
-    const key = ec.keyFromPublic(publicKey, "hex");
-    if (!key.verify(publicKey, privateKey)) {
-        res.status(400).json({ error: "Invalid public key" });
+    try {
+        const key = ec.keyFromPrivate(privateKey);
+        if (key.getPublic("hex") !== publicKey) {
+            res.status(400).json({ message: "Invalid keys" });
+        }
+    } catch (error) {
+        res.status(400).json({ message: "Invalid keys" });
     }
 
-    res.status(200).json({ privateKey, publicKey });
+    const balance = blockchanin.getBalance(publicKey);
+
+    console.log(balance);
+
+    res.status(200).json({ privateKey, publicKey, balance });
 });
 
 module.exports = router;
