@@ -1,81 +1,87 @@
 const Transaction = require('./Transaction');
 const Block = require('./Block');
-const { genesisPublicKey } = require('../initKeys')
+const { MINT_PUBLIC_ADDRESS, keyPair, genesisPublicKey } = require('../initKeys')
 
 class Blockchain {
     constructor() {
-        this.chain = [];
-        this.pendingTransactions = [];
-        this.reward = 10;
-        this.difficulity = 2;
+        const initalCoinRelease = new Transaction(MINT_PUBLIC_ADDRESS, genesisPublicKey, 100000000);
+        this.transactions = [];
+        this.chain = [new Block("", [initalCoinRelease])];
+        this.difficulty = 1;
+        this.blockTime = 30000;
+        this.reward = 100;
     }
 
-    createGenesisBlock() {
-        const initTransaction = new Transaction("NoOne", genesisPublicKey, 1000);
-        const genesisBlock = new Block("00000000000000000", [initTransaction]);
+    getLastBlock() {
+        return this.chain[this.chain.length - 1];
+    }
 
-        genesisBlock.mine(this.difficulity);
-        this.chain.push(genesisBlock);
+    addBlock(block) {
+        block.prevHash = this.getLastBlock().hash;
+        block.hash = Block.getHash(block);
+        block.mine(this.difficulty);
+        this.chain.push(Object.freeze(block));
+
+        this.difficulty += Date.now() - parseInt(this.getLastBlock().timestamp) < this.blockTime ? 1 : -1;
+    }
+
+    addTransaction(transaction) {
+        if (Transaction.isValid(transaction, this)) {
+            this.transactions.push(transaction);
+        }
+    }
+
+    mineTransactions(rewardAddress) {
+        let gas = 0;
+
+        this.transactions.forEach(transaction => {
+            gas += transaction.gas;
+        });
+
+        const rewardTransaction = new Transaction(MINT_PUBLIC_ADDRESS, rewardAddress, this.reward + gas);
+        rewardTransaction.sign(keyPair);
+
+        const blockTransactions = [rewardTransaction, ...this.transactions];
+
+        if (this.transactions.length !== 0) this.addBlock(new Block(Date.now().toString(), blockTransactions));
+
+        this.transactions.splice(0, blockTransactions.length - 1);
     }
 
     getBalance(address) {
         let balance = 0;
-        for (let block of this.chain) {
-            for (let tx of block.data) {
-                if (tx.from === address) {
-                    balance -= tx.amount;
-                } else if (tx.to === address) {
-                    balance += tx.amount;
+
+        this.chain.forEach(block => {
+            block.data.forEach(transaction => {
+                if (transaction.from === address) {
+                    balance -= transaction.amount;
+                    balance -= transaction.gas;
                 }
-            }
-        }
+
+                if (transaction.to === address) {
+                    balance += transaction.amount;
+                }
+            })
+        })
 
         return balance;
     }
 
-    getLatestBlock() {
-        return this.chain[this.chain.length - 1];
-    }
+    static isValid(blockchain) {
+        for (let i = 1; i < blockchain.chain.length; i++) {
+            const currentBlock = blockchain.chain[i];
+            const prevBlock = blockchain.chain[i - 1];
 
-    addTransactionToPending(transaction) {
-        if (transaction.amount <= 0) {
-            throw new Error("Can not send negative amount of coins");
+            if (
+                currentBlock.hash !== Block.getHash(currentBlock) ||
+                prevBlock.hash !== currentBlock.prevHash ||
+                !Block.hasValidTransactions(currentBlock, blockchain)
+            ) {
+                return false;
+            }
         }
 
-        if (!transaction.from || !transaction.to) {
-            throw new Error("Transaction must have from and to");
-        }
-
-        if (!transaction.isValid()) throw new Error("This is invalid transaction");
-
-        const balance = this.getBalance(transaction.from);
-        if (balance < transaction.amount) {
-            throw new Error("Not enough coins");
-        }
-
-        // Checking if remaining coins is enough for pending transactions
-        const pendingAmount = this.pendingTransactions
-            .filter((trans) => trans.from === transaction.from)
-            .map((trans) => trans.amount)
-            .reduce((prev, current) => prev + current, 0);
-
-        if (balance < transaction.amount + pendingAmount) {
-            throw new Error("Not enough coins");
-        }
-
-        this.pendingTransactions.push(transaction);
-    }
-
-    minePendingTxs(minnerAddress) {
-        const newBlock = new Block(this.getLatestBlock().hash, this.pendingTransactions);
-
-        const rewardTransaction = new Transaction("", minnerAddress, this.reward);
-        newBlock.data.push(rewardTransaction);
-
-        newBlock.mine(this.difficulity);
-        this.pendingTransactions = [];
-        this.chain.push(newBlock);
-        return newBlock;
+        return true;
     }
 }
 

@@ -1,33 +1,42 @@
-const crypto = require('crypto')
+const crypto = require("crypto"), SHA256 = message => crypto.createHash("sha256").update(message).digest("hex");
+const { MINT_PUBLIC_ADDRESS } = require('../initKeys');
 
 class Block {
-    constructor(previousHash, data) {
-        this.previousHash = previousHash;
+    constructor(timestamp = Date.now().toString(), data = []) {
+        this.timestamp = timestamp;
         this.data = data;
-        this.timestamp = new Date().getTime();
+        this.prevHash = "";
+        this.hash = Block.getHash(this);
         this.nonce = 0;
-        this.hash = this.calculateHash();
     }
 
-    calculateHash() {
-        return crypto
-            .createHash("sha256")
-            .update(
-                this.prevHash +
-                JSON.stringify(this.data) +
-                this.timestamp +
-                this.nonce
-            )
-            .digest("hex");
+    static getHash(block) {
+        return SHA256(block.prevHash + block.timestamp + JSON.stringify(block.data) + block.nonce);
     }
 
     mine(difficulty) {
-        while (!this.hash.startsWith('0'.repeat(difficulty))) {
+        while (!this.hash.startsWith(Array(difficulty + 1).join("0"))) {
             this.nonce++;
-            this.hash = this.calculateHash();
+            this.hash = Block.getHash(this);
         }
+    }
 
-        console.log("Minded, hash: ", this.hash);
+    static hasValidTransactions(block, chain) {
+        let gas = 0, reward = 0;
+
+        block.data.forEach(transaction => {
+            if (transaction.from !== MINT_PUBLIC_ADDRESS) {
+                gas += transaction.gas;
+            } else {
+                reward = transaction.amount;
+            }
+        });
+
+        return (
+            reward - gas === chain.reward &&
+            block.data.every(transaction => Transaction.isValid(transaction, chain)) &&
+            block.data.filter(transaction => transaction.from === MINT_PUBLIC_ADDRESS).length === 1
+        );
     }
 }
 

@@ -1,43 +1,33 @@
-const crypto = require('crypto');
-// import { ec } from "elliptic";
+const { MINT_PUBLIC_ADDRESS } = require("../initKeys");
+const EC = require("elliptic").ec
+const crypto = require("crypto")
+SHA256 = message => crypto.createHash("sha256").update(message).digest("hex");
+
+const ec = new EC("secp256k1");
 
 class Transaction {
-    constructor(from, to, amount) {
+    constructor(from, to, amount, gas = 0) {
         this.from = from;
         this.to = to;
         this.amount = amount;
-        this.timestamp = new Date().getTime();
-        this.signature = null;
+        this.gas = gas;
     }
 
-    calculateHash() {
-        return crypto
-            .createHash("sha256")
-            .update(this.from + this.to + this.amount + this.timestamp)
-            .digest("hex");
-    }
-
-    signTransaction(signingKey) {
-        // if (signingKey.getPublic("hex") !== this.from) {
-        //     throw new Error("You cannot sign transactions for other wallets!");
-        // }
-
-        // const hash = this.calculateHash();
-        // const sign = signKey.sign(hash, "base64");
-        // this.signature = sign.toDER("hex");
-        this.signature = "signed";
-    }
-
-    isValid() {
-        if (this.from === null) return true;
-
-        if (!this.signature || this.signature.length === 0) {
-            throw new Error("No signature in this transaction");
+    sign(keyPair) {
+        if (keyPair.getPublic("hex") === this.from) {
+            this.signature = keyPair.sign(SHA256(this.from + this.to + this.amount + this.gas), "base64").toDER("hex");
         }
+    }
 
-        // const publicKey = ec.keyFromPublic(this.from, "hex");
-        // return publicKey.verify(this.calculateHash(), this.signature);
-        return true;
+    static isValid(tx, chain) {
+        return (
+            tx.signature &&
+            tx.from &&
+            tx.to &&
+            tx.amount &&
+            (chain.getBalance(tx.from) >= tx.amount + tx.gas || tx.from === MINT_PUBLIC_ADDRESS) &&
+            ec.keyFromPublic(tx.from, "hex").verify(SHA256(tx.from + tx.to + tx.amount + tx.gas), tx.signature)
+        )
     }
 }
 
