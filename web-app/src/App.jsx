@@ -6,6 +6,9 @@ import HomePage from "./pages/HomePage";
 import WalletPage from "./pages/WalletPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DefaultLayout from "./layouts/DefaultLayout";
+import MakeTransactionPage from "./pages/MakeTransactionPage";
+import TransactionHistory from "./pages/TransactionHistory";
 
 function App() {
   return (
@@ -16,7 +19,11 @@ function App() {
           <Route path="create-wallet" element={<CreateWallet />} />
           <Route path="access-wallet" element={<AccessWallet />} />
         </Route>
-        <Route path="/wallet" element={<WalletPage />} />
+        <Route element={<DefaultLayout />}>
+          <Route path="/wallet" element={<WalletPage />} />
+          <Route path="/make-transaction" element={<MakeTransactionPage />} />
+          <Route path="/transaction-history" element={<TransactionHistory />} />
+        </Route>
       </Routes>
       <ToastContainer
         autoClose={3500}

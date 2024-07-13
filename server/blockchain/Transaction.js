@@ -6,16 +6,17 @@ SHA256 = message => crypto.createHash("sha256").update(message).digest("hex");
 const ec = new EC("secp256k1");
 
 class Transaction {
-    constructor(from, to, amount, gas = 0) {
+    constructor(from, to, amount, gas = 0, timestamp = Date.now()) {
         this.from = from;
         this.to = to;
         this.amount = amount;
         this.gas = gas;
+        this.timestamp = timestamp;
     }
 
     sign(keyPair) {
         if (keyPair.getPublic("hex") === this.from) {
-            this.signature = keyPair.sign(SHA256(this.from + this.to + this.amount + this.gas), "base64").toDER("hex");
+            this.signature = keyPair.sign(SHA256(this.from + this.to + this.amount + this.gas + this.timestamp), "base64").toDER("hex");
         }
     }
 

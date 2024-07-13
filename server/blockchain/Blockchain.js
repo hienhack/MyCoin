@@ -6,7 +6,7 @@ class Blockchain {
     constructor() {
         const initalCoinRelease = new Transaction(MINT_PUBLIC_ADDRESS, genesisPublicKey, 100000000);
         this.transactions = [];
-        this.chain = [new Block("", [initalCoinRelease])];
+        this.chain = [new Block(new Date().getTime(), [initalCoinRelease])];
         this.difficulty = 1;
         this.blockTime = 30000;
         this.reward = 100;
