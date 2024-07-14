@@ -1,4 +1,6 @@
-const crypto = require("crypto"), SHA256 = message => crypto.createHash("sha256").update(message).digest("hex");
+const crypto = require("crypto");
+SHA256 = message => crypto.createHash("sha256").update(message).digest("hex");
+const Transaction = require('./Transaction');
 const { MINT_PUBLIC_ADDRESS } = require('../initKeys');
 
 class Block {
@@ -31,6 +33,13 @@ class Block {
                 reward = transaction.amount;
             }
         });
+
+        // console.log("start");
+        // // console.log(block.data);
+        // block.data.forEach(transaction => {
+        //     console.log(Transaction.isValid(transaction, chain));
+        // });
+        // console.log("end");
 
         return (
             reward - gas === chain.reward &&

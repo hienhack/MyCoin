@@ -26,8 +26,9 @@ class Transaction {
             tx.from &&
             tx.to &&
             tx.amount &&
+            tx.timestamp &&
             (chain.getBalance(tx.from) >= tx.amount + tx.gas || tx.from === MINT_PUBLIC_ADDRESS) &&
-            ec.keyFromPublic(tx.from, "hex").verify(SHA256(tx.from + tx.to + tx.amount + tx.gas), tx.signature)
+            ec.keyFromPublic(tx.from, "hex").verify(SHA256(tx.from + tx.to + tx.amount + tx.gas + tx.timestamp), tx.signature)
         )
     }
 }

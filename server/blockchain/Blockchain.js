@@ -1,14 +1,14 @@
 const Transaction = require('./Transaction');
 const Block = require('./Block');
-const { MINT_PUBLIC_ADDRESS, keyPair, genesisPublicKey } = require('../initKeys')
+const { MINT_PUBLIC_ADDRESS, MINT_KEY_PAIR, genesisPublicKey } = require('../initKeys')
 
 class Blockchain {
     constructor() {
-        const initalCoinRelease = new Transaction(MINT_PUBLIC_ADDRESS, genesisPublicKey, 100000000);
+        const initalCoinRelease = new Transaction(MINT_PUBLIC_ADDRESS, genesisPublicKey, 100000000, 0, '');
         this.transactions = [];
-        this.chain = [new Block(new Date().getTime(), [initalCoinRelease])];
+        this.chain = [new Block("", [initalCoinRelease])];
         this.difficulty = 1;
-        this.blockTime = 30000;
+        this.blockTime = 2000;
         this.reward = 100;
     }
 
@@ -38,12 +38,15 @@ class Blockchain {
             gas += transaction.gas;
         });
 
-        const rewardTransaction = new Transaction(MINT_PUBLIC_ADDRESS, rewardAddress, this.reward + gas);
-        rewardTransaction.sign(keyPair);
+        const rewardTransaction = new Transaction(MINT_PUBLIC_ADDRESS, rewardAddress, this.reward + gas,);
+        rewardTransaction.sign(MINT_KEY_PAIR);
 
         const blockTransactions = [rewardTransaction, ...this.transactions];
 
-        if (this.transactions.length !== 0) this.addBlock(new Block(Date.now().toString(), blockTransactions));
+        if (this.transactions.length !== 0) {
+            const block = new Block(new Date().getTime(), blockTransactions);
+            this.addBlock(block);
+        }
 
         this.transactions.splice(0, blockTransactions.length - 1);
     }
@@ -85,5 +88,4 @@ class Blockchain {
     }
 }
 
-const blockchain = new Blockchain();
-module.exports = blockchain;
+module.exports = Blockchain;
