@@ -1,6 +1,6 @@
 const express = require("express");
 const EC = require("elliptic");
-const blockchanin = require("../../blockchain/Blockchain");
+const MyCoin = require("../../blockchain/MyCoin");
 
 const router = express.Router();
 const ec = new EC.ec("secp256k1");
@@ -28,10 +28,7 @@ router.post('/access', async (req, res) => {
         res.status(400).json({ message: "Invalid keys" });
     }
 
-    const balance = blockchanin.getBalance(publicKey);
-
-    console.log(balance);
-
+    const balance = MyCoin.getBalance(publicKey);
     res.status(200).json({ privateKey, publicKey, balance });
 });
 

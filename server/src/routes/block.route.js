@@ -1,10 +1,10 @@
 const express = require("express");
-const blockchain = require("../../blockchain/Blockchain");
+const MyCoin = require("../../blockchain/MyCoin");
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
-    return res.status(200).json(blockchain.chain);
+    return res.status(200).json(MyCoin.chain);
 });
 
 router.get("/:index", (req, res) => {
@@ -12,7 +12,7 @@ router.get("/:index", (req, res) => {
 
     try {
         const idx = parseInt(index);
-        const block = blockchain.chain[idx];
+        const block = MyCoin.chain[idx];
         return res.status(200).json(block);
     } catch (e) {
         return res.status(400).json({ message: "Invalid index" });

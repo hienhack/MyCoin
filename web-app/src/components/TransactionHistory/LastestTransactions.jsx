@@ -21,7 +21,7 @@ const LastestTransactions = ({ transactions, selectTransaction }) => {
           key={idx}
           className="flex items-center justify-between py-2 space-x-6"
         >
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 w-1/4">
             <div className="p-3 rounded-md bg-slate-400">Tx</div>
             <div className="max-w-[100px] text-sm">
               <div

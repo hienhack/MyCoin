@@ -25,15 +25,15 @@ const BlockDetail = ({ block, index, selectBlock }) => {
         <BlockInfoRow title={"Timestamp"} value={formatDate(block.timestamp)} />
         <BlockInfoRow
           title={"Transactions"}
-          value={`${block.transactions.length} transactions`}
+          value={`${block.data.length} data`}
         />
         <BlockInfoRow
           title={"Mined by"}
-          value={block.transactions[block.transactions.length - 1].to}
+          value={block.data[block.data.length - 1].to}
         />
         <BlockInfoRow
           title={"Block reward"}
-          value={block.transactions[block.transactions.length - 1].amount}
+          value={block.data[block.data.length - 1].amount}
         />
         <BlockInfoRow title={"Hash"} value={block.hash} />
         <BlockInfoRow title={"Previous Hash"} value={block.prevHash} />

@@ -29,10 +29,9 @@ class Node {
 
     startMining(address) {
         setInterval(() => {
-            console.log(this.MyCoin.transactions);
             if (this.MyCoin.transactions.length !== 0) {
+                console.log("Mining...");
                 this.MyCoin.mineTransactions(address);
-                console.log(this.MyCoin.getLastBlock());
                 this.sendMessage(this.produceMessage("TYPE_REPLACE_CHAIN", [
                     this.MyCoin.getLastBlock(),
                     this.MyCoin.difficulty
@@ -86,7 +85,7 @@ class Node {
             socket.on("message", message => {
                 const _message = JSON.parse(message);
 
-                // console.log(_message);
+                console.log(_message);
 
                 switch (_message.type) {
                     case "TYPE_REPLACE_CHAIN":
@@ -98,7 +97,6 @@ class Node {
                         const n = theirTx.length;
 
                         if (newBlock.prevHash !== this.MyCoin.getLastBlock().prevHash) {
-                            console.log(1111);
                             for (let i = 0; i < n; i++) {
                                 const index = ourTx.indexOf(theirTx[0]);
 
@@ -107,9 +105,6 @@ class Node {
                                 ourTx.splice(index, 1);
                                 theirTx.splice(0, 1);
                             }
-
-                            console.log(Math.round(Math.log(this.MyCoin.difficulty) / Math.log(16) + 1));
-                            console.log(newBlock.hash.startsWith("000" + Array(Math.round(Math.log(this.MyCoin.difficulty) / Math.log(16) + 1)).join("0")));
 
                             if (
                                 theirTx.length === 0 &&
@@ -120,13 +115,11 @@ class Node {
                                 this.MyCoin.getLastBlock().hash === newBlock.prevHash &&
                                 (newDiff + 1 === this.MyCoin.difficulty || newDiff - 1 === this.MyCoin.difficulty)
                             ) {
-                                console.log(2222);
                                 this.MyCoin.chain.push(newBlock);
                                 this.MyCoin.difficulty = newDiff;
                                 this.MyCoin.transactions = [...ourTx.map(tx => JSON.parse(tx))];
                             }
                         } else if (!this.checked.includes(JSON.stringify([newBlock.prevHash, this.MyCoin.chain[this.MyCoin.chain.length - 2].timestamp || ""]))) {
-                            console.log(3333);
                             this.checked.push(JSON.stringify([this.MyCoin.getLastBlock().prevHash, this.MyCoin.chain[this.MyCoin.chain.length - 2].timestamp || ""]));
 
                             const position = this.MyCoin.chain.length - 1;

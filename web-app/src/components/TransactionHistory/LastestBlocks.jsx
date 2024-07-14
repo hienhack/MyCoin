@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 
 const LastestBlocks = ({ blocks, selectBlock }) => {
   const [index, setIndex] = useState(0);
-  const [showBk, setShowBk] = useState([]);
+  const [showBlocks, setShowBlocks] = useState([]);
 
   useEffect(() => {
-    setShowBk(blocks.slice(index * 8, index + 8));
+    setShowBlocks(blocks.slice(index * 8, index + 8));
   }, [index, blocks]);
 
   function changeIndex(idx) {
@@ -16,12 +16,12 @@ const LastestBlocks = ({ blocks, selectBlock }) => {
   return (
     <div className="w-1/2 px-4 pt-4 bg-white divide-y rounded-lg h-max divide-slate-200">
       <div className="pb-3 ">Lastest Blocks</div>
-      {showBk.map((block, idx) => (
+      {showBlocks.map((block, idx) => (
         <div
           key={idx}
           className="flex items-center justify-between py-2 space-x-6"
         >
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 w-1/4">
             <div className="p-3 rounded-md bg-slate-400">BK</div>
             <div className="text-sm">
               <div

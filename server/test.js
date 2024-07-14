@@ -1,16 +1,20 @@
-const blockchain = require('./blockchain/Blockchain');
-const Transaction = require('./blockchain/Transaction');
-const { genesisPublicKey, keyPair } = require('./initKeys');
+const Blockchain = require("./blockchain/Blockchain");
+const Node = require("./blockchain/Node");
+const Transaction = require("./blockchain/Transaction");
+const { genesisPublicKey, keyPair } = require("./initKeys");
 
-console.log("Balance: ", blockchain.getBalance(genesisPublicKey));
+const { MyCoin } = require("./blockchain/MyCoin");
 
-const newTransaction = new Transaction(genesisPublicKey, "hienthai", 500);
-newTransaction.sign(keyPair);
+const MyCoinNode = new Node(MyCoin, [], "ws://localhost:3000", 3000);
 
-blockchain.addTransaction(newTransaction);
-blockchain.mineTransactions("NoOne");
-console.log("Balance owner: ", blockchain.getBalance(genesisPublicKey));
-console.log("Balance hienthai: ", blockchain.getBalance("hienthai"));
+MyCoinNode.start();
 
-console.log(blockchain.chain);
+setTimeout(() => {
+    const transaction = new Transaction(genesisPublicKey, "hienthai", 1245, 0, Date.now().toString());
+    transaction.sign(keyPair);
+    MyCoinNode.saveTransaction(transaction);
+}, 5000);
 
+setTimeout(() => {
+    console.log(MyCoin.getBalance("hienthai"));
+}, 10000);

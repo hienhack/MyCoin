@@ -34,13 +34,6 @@ class Block {
             }
         });
 
-        // console.log("start");
-        // // console.log(block.data);
-        // block.data.forEach(transaction => {
-        //     console.log(Transaction.isValid(transaction, chain));
-        // });
-        // console.log("end");
-
         return (
             reward - gas === chain.reward &&
             block.data.every(transaction => Transaction.isValid(transaction, chain)) &&

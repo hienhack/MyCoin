@@ -9,8 +9,33 @@ import "react-toastify/dist/ReactToastify.css";
 import DefaultLayout from "./layouts/DefaultLayout";
 import MakeTransactionPage from "./pages/MakeTransactionPage";
 import TransactionHistory from "./pages/TransactionHistory";
+import { useContext } from "react";
+import WalletContext from "./context/WalletContext";
+import socket from "./socket";
 
 function App() {
+  const { wallet, setWallet } = useContext(WalletContext);
+
+  socket.on("newBlock", (block) => {
+    let change = 0;
+    console.log(block);
+    for (let tx of block.data) {
+      console.log(tx);
+      if (tx.to === wallet.publicKey) {
+        change += tx.amount;
+      }
+
+      if (tx.from === wallet.publicKey) {
+        change -= tx.amount;
+      }
+    }
+
+    setWallet({
+      ...wallet,
+      balance: wallet.balance + change,
+    });
+  });
+
   return (
     <>
       <Routes>

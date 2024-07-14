@@ -34,7 +34,6 @@ const MakeTransactionPage = () => {
         return;
       }
 
-      console.log(amountRef.current.value);
       const response = await api.post("/transaction/send", {
         privateKey: walletCtx.wallet.privateKey,
         address: addressRef.current.value,

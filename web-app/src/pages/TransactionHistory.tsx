@@ -15,6 +15,7 @@ const TransactionHistory = () => {
     const fetchBlocks = async () => {
       const res = await api.get("/block");
       if (res.status === 200) {
+        console.log(res);
         setBlocks(res.data);
       }
     };
