@@ -7,8 +7,8 @@ class Blockchain {
         const initalCoinRelease = new Transaction(MINT_PUBLIC_ADDRESS, genesisPublicKey, 100000000, 0, '');
         this.transactions = [];
         this.chain = [new Block("", [initalCoinRelease])];
-        this.difficulty = 1;
-        this.blockTime = 2000;
+        this.difficulty = 2;
+        this.blockTime = 5000;
         this.reward = 100;
     }
 

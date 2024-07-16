@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import HomeLayout from "./layouts/HomeLayout";
 import CreateWallet from "./pages/CreateWallet";
 import AccessWallet from "./pages/AccessWallet";
@@ -13,8 +13,15 @@ import { useContext } from "react";
 import WalletContext from "./context/WalletContext";
 import socket from "./socket";
 
+const PRIVATE_ROUTES = ["/wallet", "/make-transaction", "/transaction-history"];
+
 function App() {
   const { wallet, setWallet } = useContext(WalletContext);
+  const { pathname } = useLocation();
+
+  if (PRIVATE_ROUTES.includes(pathname) && !wallet.privateKey) {
+    return <Navigate to="/" />;
+  }
 
   socket.on("newBlock", (block) => {
     let change = 0;
